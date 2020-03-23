@@ -17,7 +17,7 @@
 
 const char* ssid = STASSID;
 const char* password = STAPSK;
-const char* host = "OTA-LEDS";
+const char* host = "simpleLED";
 
 int led_pin = 2;
 #define N_DIMMERS 3
@@ -29,6 +29,7 @@ void setup() {
   #endif
 
   pinMode(led_pin, OUTPUT);
+  digitalWrite(led_pin, HIGH);
 
   SERIAL_PRINTLN("Booting");
   WiFi.mode(WIFI_STA);
@@ -39,17 +40,6 @@ void setup() {
     WiFi.begin(ssid, password);
     SERIAL_PRINTLN("Retrying connection...");
   }
-  /* switch off led */
-  digitalWrite(led_pin, HIGH);
-
-  /* configure dimmers, and OTA server events */
-  analogWriteRange(1000);
-  analogWrite(led_pin, 990);
-
-  for (int i = 0; i < N_DIMMERS; i++) {
-    pinMode(dimmer_pin[i], OUTPUT);
-    analogWrite(dimmer_pin[i], 50);
-  }
 
   ArduinoOTA.setHostname(host);
   ArduinoOTA.onStart([]() { // switch off all the PWMs during upgrade
@@ -59,12 +49,7 @@ void setup() {
     analogWrite(led_pin, 0);
   });
 
-  ArduinoOTA.onEnd([]() { // do a fancy thing with our board led at end
-    for (int i = 0; i < 30; i++) {
-      analogWrite(led_pin, (i * 100) % 1001);
-      delay(50);
-    }
-  });
+  ArduinoOTA.onEnd([]() {});
 
   ArduinoOTA.onError([](ota_error_t error) {
     (void)error;
